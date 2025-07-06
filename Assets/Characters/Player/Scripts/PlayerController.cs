@@ -10,10 +10,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintSpeed = 5f;
     [SerializeField] private float rotationSpeed = 1000f;
     [SerializeField] private float pushStrength = 40f;
+    [SerializeField] private FieldOfViewScript fov;
     //[SerializeField] private float deceleration = 5f;
 
     [Header("Components")]
-    [SerializeField] GameObject interactComponent;
+    [SerializeField] GameObject rotationComponent;
+
 
     private float speed;
 
@@ -33,7 +35,10 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         MovePlayer();
-        RotateTowardsMouse();
+        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
+        fov.SetAimDirection((new Vector3(mousePosition.x, mousePosition.y, 0) - transform.position));
+        fov.SetOrigin(transform.position);
+        //RotateTowardsMouse();
     }
 
     private void MovePlayer()
@@ -51,9 +56,9 @@ public class PlayerController : MonoBehaviour
     private void RotateTowardsMouse()
     {
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
-        rotationGoal = Quaternion.LookRotation(interactComponent.transform.forward, (new Vector3(mousePosition.x, mousePosition.y, 0) - interactComponent.transform.position));
+        rotationGoal = Quaternion.LookRotation(rotationComponent.transform.forward, (new Vector3(mousePosition.x, mousePosition.y, 0) - rotationComponent.transform.position));
         rotationGoal = Quaternion.Euler(0, 0, rotationGoal.eulerAngles.z + 90);
-        interactComponent.transform.rotation = Quaternion.RotateTowards(interactComponent.transform.rotation, rotationGoal, rotationSpeed * Time.deltaTime);
+        rotationComponent.transform.rotation = Quaternion.RotateTowards(rotationComponent.transform.rotation, rotationGoal, rotationSpeed * Time.deltaTime);
     }
 
     private void SlowDownPlayer(float deceleration)
