@@ -75,7 +75,7 @@ public class FieldOfViewScript : MonoBehaviour
             float angleRad = angle * (Mathf.PI / 180f);
             Vector3 vertex;
             RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad)), viewRange, mask);
-            //Debug.DrawRay(transform.position, new Vector3(Mathf.Cos(angleRad) * viewRange, Mathf.Sin(angleRad)) * viewRange, Color.red);
+            Debug.DrawRay(transform.position, new Vector3(Mathf.Cos(angleRad) * viewRange, Mathf.Sin(angleRad)) * viewRange, Color.red);
 
             if (hit.collider == null)
             {

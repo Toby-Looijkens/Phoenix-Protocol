@@ -18,7 +18,7 @@ public class Powercell_Script : MonoBehaviour
     public void ChargePowerCell(float chargeRate)
     {
         if (powercellCharge == powercellMaxCharge) return;
-        UpdateChargeLights();
+        //UpdateChargeLights();
 
         if (powercellCharge + chargeRate >= powercellMaxCharge)
         {
@@ -33,7 +33,7 @@ public class Powercell_Script : MonoBehaviour
     public float DischargePowercell(float powerRequirement)
     {
         if (powercellCharge <= 0) return 0;
-        UpdateChargeLights();
+        //UpdateChargeLights();
 
         if (powercellCharge - powerRequirement < 0) 
         { 

@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Components")]
     [SerializeField] GameObject rotationComponent;
+    [SerializeField] Camera camera;
 
 
     private float speed;
@@ -34,11 +35,13 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        camera.transform.position = transform.position + new Vector3(0, 0, -10);
+
         MovePlayer();
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
         fov.SetAimDirection((new Vector3(mousePosition.x, mousePosition.y, 0) - transform.position));
         fov.SetOrigin(transform.position);
-        //RotateTowardsMouse();
+        RotateTowardsMouse();
     }
 
     private void MovePlayer()
