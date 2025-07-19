@@ -1,4 +1,5 @@
 using System.Threading;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -6,6 +7,7 @@ public class PowercellInsertionPort_Script : MonoBehaviour
 {
     [SerializeField] Light2D[] lights;
     [SerializeField] GameObject[] roomEquipment;
+    [SerializeField] TMP_Text interactionPrompt;
     [SerializeField] float powerRequirement = 0.25f;
 
     public GameObject powercell;
@@ -57,7 +59,7 @@ public class PowercellInsertionPort_Script : MonoBehaviour
 
         foreach (GameObject equipment in roomEquipment)
         {
-
+            equipment.SetActive(true);
         }
     }
 
@@ -70,7 +72,17 @@ public class PowercellInsertionPort_Script : MonoBehaviour
 
         foreach (GameObject equipment in roomEquipment)
         {
-
+            equipment.SetActive(false);
         }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        interactionPrompt.enabled = true;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        interactionPrompt.enabled = false;
     }
 }
