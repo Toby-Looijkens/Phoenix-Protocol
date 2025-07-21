@@ -2,13 +2,16 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UIElements;
 
-public class PowercellInsertionPort_Script : MonoBehaviour
+public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
 {
     [SerializeField] Light2D[] lights;
     [SerializeField] GameObject[] roomEquipment;
     [SerializeField] TMP_Text interactionPrompt;
     [SerializeField] float powerRequirement = 0.25f;
+
+    [SerializeField] InventoryManager inventoryManager;
 
     public GameObject powercell;
 
@@ -22,7 +25,6 @@ public class PowercellInsertionPort_Script : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        PowerRoom();
     }
 
     private void PowerRoom()
@@ -49,9 +51,40 @@ public class PowercellInsertionPort_Script : MonoBehaviour
         timer = 0;
     }
 
+    public void Interact()
+    {
+        if (inventoryManager.powercell != null && powercell == null)
+        {
+            InsertPowerCell();
+        }
+        else if (inventoryManager.powercell == null && powercell != null)
+        {
+            RemovePowerCell();
+        }
+    }
+
+    private void InsertPowerCell()
+    { 
+        powercell = inventoryManager.powercell;
+        inventoryManager.powercell = null;
+        Powercell_Script pcs = powercell.GetComponent<Powercell_Script>();
+
+        if ( pcs.powercellCharge > 0)
+        {
+            pcs.powercellCharge -= 25;
+            SwitchPowerOn();
+        }
+    }
+
+    private void RemovePowerCell()
+    {
+        inventoryManager.powercell = powercell;
+        powercell = null;
+        SwitchPowerOff();
+    }
+
     private void SwitchPowerOn()
     {
-        Debug.Log("Test");
         foreach (Light2D light in lights)
         {
             light.enabled = true;
@@ -78,11 +111,13 @@ public class PowercellInsertionPort_Script : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        inventoryManager = collision.GetComponent<InventoryManager>();
         interactionPrompt.enabled = true;
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        inventoryManager = null;
         interactionPrompt.enabled = false;
     }
 }

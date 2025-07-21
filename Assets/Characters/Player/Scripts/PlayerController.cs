@@ -27,6 +27,8 @@ public class PlayerController : MonoBehaviour
 
     private List<GameObject> targets = new List<GameObject>();
 
+    private IInteractable interactable;
+
     void Start()
     {
         rigidBody = GetComponent<Rigidbody2D>();
@@ -103,6 +105,30 @@ public class PlayerController : MonoBehaviour
         } else
         {
             speed = walkingSpeed;
+        }
+    }
+
+    private void OnInteract(InputValue value)
+    {
+        if (interactable != null)
+        {
+            interactable.Interact();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.layer == 9)
+        {
+            interactable = collision.GetComponent<IInteractable>();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.layer == 9)
+        {
+            interactable = null;
         }
     }
 }
