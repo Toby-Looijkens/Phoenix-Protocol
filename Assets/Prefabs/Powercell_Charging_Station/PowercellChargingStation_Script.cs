@@ -1,16 +1,15 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class PowercellChargingStation_Script : MonoBehaviour
+public class PowercellChargingStation_Script : MonoBehaviour, IInteractable
 {
     [SerializeField] private float chargeRate = 0.02f;
 
-    [SerializeField] private GameObject[] ports = new GameObject[4];
+    [SerializeField] private GameObject[] ports = new GameObject[3];
 
     private int portsOccupied = 0;
 
     private float timer;
-
-    private GameObject player;
 
     private void Update()
     {
@@ -27,69 +26,75 @@ public class PowercellChargingStation_Script : MonoBehaviour
 
         foreach (GameObject port in ports)
         {
-            if (port != null)
-                port.GetComponent<Powercell_Script>().ChargePowerCell(chargeRate);
+            if (port.transform.childCount > 0)
+            {
+                port.GetComponentInChildren<Powercell_Script>().ChargePowerCell(chargeRate);
+            }
         }
 
         timer = 0;
     }
 
-    private void InsertPowercell(GameObject powercell)
+    private void InsertPowerCell(InventoryManager inventoryManager)
     {
+        GameObject powercell = inventoryManager.powercell;
+
         for (int i = 0; i < ports.Length; i++) 
         { 
-            if (ports[i] == null)
+            if (ports[i].transform.childCount == 0)
             {
-                ports[i] = powercell;
+                powercell.transform.SetParent(ports[i].transform, false);
+                powercell.GetComponent<Powercell_Script>().sprite.enabled = true;
                 break;
             }
         }
-        powercell = null;
+        inventoryManager.powercell = null;
         portsOccupied++;
     }
 
-    private void RemovePowercell(GameObject powercell)
+    private void RemovePowerCell(InventoryManager inventoryManager)
     {
-        GameObject highestChargeBattery;
-        highestChargeBattery = ports[0];
-        for (int i = 1; i < ports.Length; i++)
+        GameObject highestChargeBattery = null;
+        for (int i = 0; i < ports.Length; i++)
         {
-            if (ports[i] == null)
+            if (highestChargeBattery == null && ports[i].transform.childCount > 0) 
             {
-                highestChargeBattery = ports[i];
-            } 
-            else if (ports[i].GetComponent<Powercell_Script>().powercellCharge > highestChargeBattery.GetComponent<Powercell_Script>().powercellCharge)
+                highestChargeBattery = ports[i].GetComponentInChildren<Powercell_Script>().gameObject;
+                continue;
+            }
+
+            if (ports[i].GetComponentInChildren<Powercell_Script>().powercellCharge > highestChargeBattery.GetComponent<Powercell_Script>().powercellCharge)
             {
-                highestChargeBattery = ports[i];
+                highestChargeBattery = ports[i].GetComponentInChildren<Powercell_Script>().gameObject;
+                ports[i] = null;
             }
         }
-        powercell = highestChargeBattery;
+        inventoryManager.powercell = highestChargeBattery;
+        highestChargeBattery.transform.SetParent(inventoryManager.gameObject.transform);
         portsOccupied--;
     }
 
-    private void OnInteract()
+    public void Interact(GameObject player)
     {
-        if (player == null) 
-            return;
-
-        if (portsOccupied != 0 && player.GetComponent<InventoryManager>().powercell == null) 
-            RemovePowercell(player.GetComponent<InventoryManager>().powercell);
-
-        if (portsOccupied != ports.Length && player.GetComponent<InventoryManager>().powercell == null)
-            InsertPowercell(player.GetComponent<InventoryManager>().powercell);
-    } 
+        InventoryManager inventoryManager = player.GetComponent<InventoryManager>();
+        if (inventoryManager.powercell != null && portsOccupied < ports.Length )
+        {
+            InsertPowerCell(inventoryManager);
+        }
+        else if (inventoryManager.powercell == null && portsOccupied > 0)
+        {
+            RemovePowerCell(inventoryManager);
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
-            player = collision.gameObject;
+
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
-        {
-            player = null;
-        }
+
     }
+
 }

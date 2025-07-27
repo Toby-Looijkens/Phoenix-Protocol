@@ -1,24 +1,25 @@
 using UnityEngine;
 
-public class Powercell_Script : MonoBehaviour
+public class Powercell_Script : MonoBehaviour, IInteractable
 {
     [SerializeField] public float powercellCharge = 100;
     [SerializeField] private float powercellMaxCharge = 100;
 
-    [SerializeField] private SpriteRenderer _20percentChargeLed;
-    [SerializeField] private SpriteRenderer _45percentChargeLed;
-    [SerializeField] private SpriteRenderer _70percentChargeLed;
-    [SerializeField] private SpriteRenderer _95percentChargeLed;
+    [SerializeField] private SpriteRenderer _25percentChargeLed;
+    [SerializeField] private SpriteRenderer _50percentChargeLed;
+    [SerializeField] private SpriteRenderer _75percentChargeLed;
+    [SerializeField] private SpriteRenderer _100percentChargeLed;
+
+    [SerializeField] public SpriteRenderer sprite;
 
     private void Start()
     {
-
+        UpdateChargeLights();
     }
 
     public void ChargePowerCell(float chargeRate)
     {
         if (powercellCharge == powercellMaxCharge) return;
-        //UpdateChargeLights();
 
         if (powercellCharge + chargeRate >= powercellMaxCharge)
         {
@@ -28,51 +29,51 @@ public class Powercell_Script : MonoBehaviour
         {
             powercellCharge += chargeRate;
         }
+
+        UpdateChargeLights();
     }
 
     public float DischargePowercell(float powerRequirement)
     {
         if (powercellCharge <= 0) return 0;
-        //UpdateChargeLights();
 
         if (powercellCharge - powerRequirement < 0) 
         { 
             powercellCharge = 0;
-            return powerRequirement;
         } 
         else
         {
             powercellCharge -= powerRequirement;
-            return powerRequirement;
         }
+
+        UpdateChargeLights();
+        return powerRequirement;
     }
 
     public void UpdateChargeLights()
     {
         float value = powercellCharge / powercellMaxCharge;
-        switch (value)
-        {
-            case var expression when value >= 0.02:
-                _20percentChargeLed.color = Color.red; 
-                break;
-            case var expression when value >= 0.2:
-                _20percentChargeLed.color = Color.green;
-                break;
-            case var expression when value >= 0.45:
-                _45percentChargeLed.color = Color.green;
-                break;
-            case var expression when value >= 0.70:
-                _70percentChargeLed.color = Color.green;
-                break;
-            case var expression when value >= 0.95:
-                _95percentChargeLed.color = Color.green;
-                break;
-            default:
-                _20percentChargeLed.color = Color.gray;
-                _45percentChargeLed.color = Color.gray;
-                _70percentChargeLed.color = Color.gray;
-                _95percentChargeLed.color = Color.gray;
-                break;
-        }
+
+        _25percentChargeLed.color = Color.gray;
+        _50percentChargeLed.color = Color.gray;
+        _75percentChargeLed.color = Color.gray;
+        _100percentChargeLed.color = Color.gray;
+
+        if (value >= 0.02) _25percentChargeLed.color = Color.red;
+
+        if (value >= 0.25) _25percentChargeLed.color = Color.green;
+
+        if (value >= 0.5) _50percentChargeLed.color = Color.green;
+
+        if (value >= 0.75) _75percentChargeLed.color = Color.green;
+
+        if (value >= 1) _100percentChargeLed.color = Color.green;
+    }
+
+    public void Interact(GameObject player)
+    {
+        player.GetComponent<InventoryManager>().powercell = gameObject;
+        gameObject.transform.SetParent(player.transform, false);
+        sprite.enabled = false;
     }
 }

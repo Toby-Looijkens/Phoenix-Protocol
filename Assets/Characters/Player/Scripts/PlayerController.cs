@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -12,6 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float pushStrength = 40f;
     [SerializeField] private FieldOfViewScript fov;
     //[SerializeField] private float deceleration = 5f;
+    [SerializeField] TMP_Text interactionPrompt;
 
     [Header("Components")]
     [SerializeField] GameObject rotationComponent;
@@ -112,7 +114,7 @@ public class PlayerController : MonoBehaviour
     {
         if (interactable != null)
         {
-            interactable.Interact();
+            interactable.Interact(gameObject);
         }
     }
 
@@ -121,6 +123,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.layer == 9)
         {
             interactable = collision.GetComponent<IInteractable>();
+            interactionPrompt.enabled = true;
         }
     }
 
@@ -129,6 +132,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.layer == 9)
         {
             interactable = null;
+            interactionPrompt.enabled = false;
         }
     }
 }

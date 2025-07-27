@@ -1,5 +1,6 @@
 using System.Threading;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UIElements;
@@ -8,18 +9,28 @@ public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
 {
     [SerializeField] Light2D[] lights;
     [SerializeField] GameObject[] roomEquipment;
-    [SerializeField] TMP_Text interactionPrompt;
     [SerializeField] float powerRequirement = 0.25f;
 
-    [SerializeField] InventoryManager inventoryManager;
+    [SerializeField] GameObject prefab;
 
     public GameObject powercell;
 
     private float timer;
     void Start()
-    {
-        powercell = new GameObject();
-        powercell.AddComponent<Powercell_Script>();
+    {        
+        if (powercell == null)
+        {
+            foreach (Light2D light in lights)
+            {
+                light.enabled = false;
+            }
+
+            foreach (GameObject equipment in roomEquipment)
+            {
+                equipment.GetComponent<IEquipment>().SwitchOff();
+            }
+        }
+
     }
 
     // Update is called once per frame
@@ -51,34 +62,38 @@ public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
         timer = 0;
     }
 
-    public void Interact()
+    public void Interact(GameObject player)
     {
+        InventoryManager inventoryManager = player.GetComponent<InventoryManager>();
         if (inventoryManager.powercell != null && powercell == null)
         {
-            InsertPowerCell();
+            InsertPowerCell(inventoryManager);
         }
         else if (inventoryManager.powercell == null && powercell != null)
         {
-            RemovePowerCell();
+            RemovePowerCell(inventoryManager);
         }
     }
 
-    private void InsertPowerCell()
+    private void InsertPowerCell(InventoryManager inventoryManager)
     { 
         powercell = inventoryManager.powercell;
         inventoryManager.powercell = null;
         Powercell_Script pcs = powercell.GetComponent<Powercell_Script>();
 
-        if ( pcs.powercellCharge > 0)
+        if ( pcs.powercellCharge >= 25)
         {
-            pcs.powercellCharge -= 25;
+            powercell.transform.SetParent(gameObject.transform, false);
+            pcs.DischargePowercell(25);
+            pcs.sprite.enabled = true;
             SwitchPowerOn();
         }
     }
 
-    private void RemovePowerCell()
+    private void RemovePowerCell(InventoryManager inventoryManager)
     {
         inventoryManager.powercell = powercell;
+        powercell.transform.SetParent(inventoryManager.gameObject.transform, false);
         powercell = null;
         SwitchPowerOff();
     }
@@ -111,13 +126,11 @@ public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        inventoryManager = collision.GetComponent<InventoryManager>();
-        interactionPrompt.enabled = true;
+  
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        inventoryManager = null;
-        interactionPrompt.enabled = false;
+
     }
 }
