@@ -16,21 +16,29 @@ public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
     public GameObject powercell;
 
     private float timer;
+
     void Start()
-    {        
+    {
         if (powercell == null)
         {
-            foreach (Light2D light in lights)
+            if (lights.Length > 0)
             {
-                light.enabled = false;
+                foreach (Light2D light in lights)
+                {
+                    light.enabled = false;
+                }
             }
 
-            foreach (GameObject equipment in roomEquipment)
+
+            if (roomEquipment.Length > 0)
             {
-                equipment.GetComponent<IEquipment>().SwitchOff();
+                foreach (GameObject equipment in roomEquipment)
+                {
+                    try { equipment.GetComponent<IEquipment>().SwitchOff(); } 
+                    catch { }
+                }
             }
         }
-
     }
 
     // Update is called once per frame

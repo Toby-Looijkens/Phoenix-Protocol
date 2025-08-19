@@ -73,7 +73,9 @@ public class Powercell_Script : MonoBehaviour, IInteractable
     public void Interact(GameObject player)
     {
         player.GetComponent<InventoryManager>().powercell = gameObject;
+        transform.position = Vector3.zero;
         gameObject.transform.SetParent(player.transform, false);
         sprite.enabled = false;
+        GetComponent<BoxCollider2D>().enabled = false;
     }
 }

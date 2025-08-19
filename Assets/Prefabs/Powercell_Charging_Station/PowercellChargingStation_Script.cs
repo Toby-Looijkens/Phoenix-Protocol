@@ -63,14 +63,14 @@ public class PowercellChargingStation_Script : MonoBehaviour, IInteractable
                 continue;
             }
 
-            if (ports[i].GetComponentInChildren<Powercell_Script>().powercellCharge > highestChargeBattery.GetComponent<Powercell_Script>().powercellCharge)
+            if (!highestChargeBattery && ports[i].GetComponentInChildren<Powercell_Script>().powercellCharge > highestChargeBattery.GetComponent<Powercell_Script>().powercellCharge)
             {
                 highestChargeBattery = ports[i].GetComponentInChildren<Powercell_Script>().gameObject;
                 ports[i] = null;
             }
         }
         inventoryManager.powercell = highestChargeBattery;
-        highestChargeBattery.transform.SetParent(inventoryManager.gameObject.transform);
+        highestChargeBattery.transform.SetParent(inventoryManager.gameObject.transform, false);
         portsOccupied--;
     }
 
