@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 28
-  productGUID: b2e91a3460e455c4db26a2b9be43657b
+  productGUID: 8d756a90172dd2048979347094ebb7ff
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -915,10 +915,10 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: cbb07b42-7f97-4449-b081-f751d8410a2d
+  cloudProjectId: 615f98eb-a557-4052-bd2d-2485488ca19c
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Phoenix Protocol
+  projectName: Phoenix Protocol 2025-08-20_18-03-23
   organizationId: godtiergarbage
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
