@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using TMPro;
+using TreeEditor;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,11 +10,12 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float walkingSpeed = 3f;
     [SerializeField] private float sprintSpeed = 5f;
-    [SerializeField] private float rotationSpeed = 1000f;
-    [SerializeField] private float pushStrength = 40f;
-    [SerializeField] private FieldOfViewScript fov;
-    //[SerializeField] private float deceleration = 5f;
     [SerializeField] TMP_Text interactionPrompt;
+
+    [Header("Camera")]
+    [SerializeField] private Vector2 acceleration = new Vector2(2000, 2000);
+    [SerializeField] Vector2 sensitivity = new Vector2(20, -20);
+    [SerializeField] private float verticalClamp = 80;
 
     [Header("Components")]
     [SerializeField] GameObject rotationComponent;
@@ -22,10 +24,12 @@ public class PlayerController : MonoBehaviour
 
     private float speed;
 
-    private Vector2 movementVector = Vector2.zero;
-    private Rigidbody2D rigidBody;
+    private Vector3 movementVector = Vector3.zero;
+    private Rigidbody rigidBody;
 
-    private Quaternion rotationGoal;
+    private Vector2 velocity;
+    private Vector2 currentRotation;
+    private Vector2 rotationVector;
 
     private List<GameObject> targets = new List<GameObject>();
 
@@ -33,65 +37,47 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        rigidBody = GetComponent<Rigidbody2D>();
+        rigidBody = GetComponent<Rigidbody>();
         speed = walkingSpeed;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
     {
-        camera.transform.position = transform.position + new Vector3(0, 0, -10);
-
         MovePlayer();
-        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
-        fov.SetAimDirection((new Vector3(mousePosition.x, mousePosition.y, 0) - transform.position));
-        fov.SetOrigin(transform.position);
-        RotateTowardsMouse();
+        MoveCamera();
     }
 
     private void MovePlayer()
     {
-        if (movementVector != Vector2.zero)
+        if (movementVector != Vector3.zero)
         {
-            rigidBody.linearVelocity = movementVector * speed;
+            //Get camera normals
+            Vector3 forward = camera.transform.forward;
+            Vector3 right = camera.transform.right;
+
+            forward.y = 0;
+            right.y = 0;
+            forward.Normalize();
+            right.Normalize();
+
+            //Movement based on where player is looking
+            Vector3 forwardRelative = forward * movementVector.y;
+            Vector3 rightRelative = right * movementVector.x;
+
+            Vector3 relativeMovement = forwardRelative + rightRelative;
+
+            transform.position += relativeMovement * speed * Time.deltaTime;
         } 
-        else
-        {
-            SlowDownPlayer(15f);
-        }
     }
 
-    private void RotateTowardsMouse()
+    private void MoveCamera()
     {
-        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
-        rotationGoal = Quaternion.LookRotation(rotationComponent.transform.forward, (new Vector3(mousePosition.x, mousePosition.y, 0) - rotationComponent.transform.position));
-        rotationGoal = Quaternion.Euler(0, 0, rotationGoal.eulerAngles.z + 90);
-        rotationComponent.transform.rotation = Quaternion.RotateTowards(rotationComponent.transform.rotation, rotationGoal, rotationSpeed * Time.deltaTime);
-    }
+        Vector2 scaledRotationVector = rotationVector * sensitivity;
 
-    private void SlowDownPlayer(float deceleration)
-    {
-        Vector3 speedVector = rigidBody.linearVelocity;
-        Vector3 invertedSpeedVector = speedVector * -1 * deceleration * Time.deltaTime;
-
-        if (Mathf.Abs(speedVector.x) >= 0 && Mathf.Abs(speedVector.x) <= Mathf.Abs(invertedSpeedVector.x))
-        {
-            speedVector.x = 0;
-        }
-        else
-        {
-            speedVector.x += invertedSpeedVector.x;
-        }
-
-        if (Mathf.Abs(speedVector.y) >= 0 && Mathf.Abs(speedVector.y) <= Mathf.Abs(invertedSpeedVector.y))
-        {
-            speedVector.y = 0;
-        }
-        else
-        {
-            speedVector.y += invertedSpeedVector.y;
-        }
-
-        rigidBody.linearVelocity = speedVector;
+        currentRotation += scaledRotationVector * Time.deltaTime;
+        currentRotation.y = Mathf.Clamp(currentRotation.y, -verticalClamp, verticalClamp);
+        camera.transform.localEulerAngles = new Vector3(currentRotation.y, currentRotation.x, 0);
     }
 
     private void OnMove(InputValue value)
@@ -108,6 +94,11 @@ public class PlayerController : MonoBehaviour
         {
             speed = walkingSpeed;
         }
+    }
+
+    private void OnLook(InputValue value)
+    {
+        rotationVector = value.Get<Vector2>();
     }
 
     private void OnInteract(InputValue value)
