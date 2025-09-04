@@ -5,13 +5,11 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UIElements;
 
-public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
+public class PowerCellPort_Script : MonoBehaviour, IInteractable
 {
-    [SerializeField] Light2D[] lights;
+    [SerializeField] Light[] lights;
     [SerializeField] GameObject[] roomEquipment;
     [SerializeField] float powerRequirement = 0.25f;
-
-    [SerializeField] GameObject prefab;
 
     public GameObject powercell;
 
@@ -20,7 +18,7 @@ public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
     {        
         if (powercell == null)
         {
-            foreach (Light2D light in lights)
+            foreach (Light light in lights)
             {
                 light.enabled = false;
             }
@@ -100,7 +98,7 @@ public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
 
     private void SwitchPowerOn()
     {
-        foreach (Light2D light in lights)
+        foreach (Light light in lights)
         {
             light.enabled = true;
         }
@@ -113,7 +111,7 @@ public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
 
     private void SwitchPowerOff()
     {
-        foreach (Light2D light in lights)
+        foreach (Light light in lights)
         {
             light.enabled = false;
         }
@@ -122,15 +120,5 @@ public class PowercellInsertionPort_Script : MonoBehaviour, IInteractable
         {
             equipment.SetActive(false);
         }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-  
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-
     }
 }

@@ -109,20 +109,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.layer == 9)
+        if (other.gameObject.layer == 9)
         {
-            interactable = collision.GetComponent<IInteractable>();
+            interactable = other.GetComponent<IInteractable>();
             interactionPrompt.enabled = true;
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    private void OnTriggerExit(Collider other)
     {
-        if (collision.gameObject.layer == 9)
+        if (other.gameObject.layer == 9)
         {
-            interactable = null;
+            interactable = other.GetComponent<IInteractable>();
             interactionPrompt.enabled = false;
         }
     }

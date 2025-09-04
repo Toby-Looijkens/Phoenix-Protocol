@@ -1,11 +1,11 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PowercellChargingStation_Script : MonoBehaviour, IInteractable
+public class PowerCellChargingStation_Script : MonoBehaviour, IInteractable
 {
     [SerializeField] private float chargeRate = 0.02f;
 
-    [SerializeField] private GameObject[] ports = new GameObject[3];
+    [SerializeField] private GameObject[] ports = new GameObject[4];
 
     private int portsOccupied = 0;
 
