@@ -14,22 +14,23 @@ public class PlayerController : MonoBehaviour
 
     [Header("Camera")]
     [SerializeField] private Vector2 acceleration = new Vector2(2000, 2000);
-    [SerializeField] Vector2 sensitivity = new Vector2(20, -20);
+    [SerializeField] float horizontalSensitivity = 20;
+    [SerializeField] float verticalSensitivity = -20;
     [SerializeField] private float verticalClamp = 80;
 
     [Header("Components")]
     [SerializeField] GameObject rotationComponent;
     [SerializeField] Camera camera;
+    [SerializeField] CharacterController characterController;
 
 
     private float speed;
 
     private Vector3 movementVector = Vector3.zero;
-    private Rigidbody rigidBody;
 
     private Vector2 velocity;
-    private Vector2 currentRotation;
-    private Vector2 rotationVector;
+    private Vector2 mouseInput;
+    private float pitch;
 
     private List<GameObject> targets = new List<GameObject>();
 
@@ -37,15 +38,13 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        rigidBody = GetComponent<Rigidbody>();
         speed = walkingSpeed;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         MovePlayer();
-        MoveCamera();
     }
 
     private void MovePlayer()
@@ -67,18 +66,10 @@ public class PlayerController : MonoBehaviour
 
             Vector3 relativeMovement = forwardRelative + rightRelative;
 
-            transform.position += relativeMovement * speed * Time.deltaTime;
-        } 
+            characterController.SimpleMove(relativeMovement * speed);
+        }
     }
 
-    private void MoveCamera()
-    {
-        Vector2 scaledRotationVector = rotationVector * sensitivity;
-
-        currentRotation += scaledRotationVector * Time.deltaTime;
-        currentRotation.y = Mathf.Clamp(currentRotation.y, -verticalClamp, verticalClamp);
-        camera.transform.localEulerAngles = new Vector3(currentRotation.y, currentRotation.x, 0);
-    }
 
     private void OnMove(InputValue value)
     {
@@ -98,7 +89,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnLook(InputValue value)
     {
-        rotationVector = value.Get<Vector2>();
+        mouseInput = value.Get<Vector2>();
     }
 
     private void OnInteract(InputValue value)
