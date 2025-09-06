@@ -28,28 +28,49 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 movementVector = Vector3.zero;
 
-    private Vector2 velocity;
+    private Vector3 velocity;
     private Vector2 mouseInput;
     private float pitch;
 
     private List<GameObject> targets = new List<GameObject>();
 
     private IInteractable interactable;
+    private Rigidbody rigidBody;
+
+    // Input registry
+    private InputAction moveAction;
+    private InputAction sprintAction;
 
     void Start()
     {
         speed = walkingSpeed;
         Cursor.lockState = CursorLockMode.Locked;
+        rigidBody = GetComponent<Rigidbody>();
+
+        moveAction = InputSystem.actions.FindAction("Move");
+        sprintAction = InputSystem.actions.FindAction("Sprint");
     }
 
-    void FixedUpdate()
+    void Update()
     {
         MovePlayer();
     }
 
     private void MovePlayer()
     {
-        if (movementVector != Vector3.zero)
+        movementVector = moveAction.ReadValue<Vector2>();
+
+        if (characterController.isGrounded) velocity.y = -2f;
+
+        if (sprintAction.ReadValue<float>() > 0)
+        {
+            speed = sprintSpeed;
+        } else
+        {
+            speed = walkingSpeed;
+        }
+
+        if (movementVector.magnitude > 0)
         {
             //Get camera normals
             Vector3 forward = camera.transform.forward;
@@ -63,28 +84,14 @@ public class PlayerController : MonoBehaviour
             //Movement based on where player is looking
             Vector3 forwardRelative = forward * movementVector.y;
             Vector3 rightRelative = right * movementVector.x;
-
             Vector3 relativeMovement = forwardRelative + rightRelative;
 
-            characterController.SimpleMove(relativeMovement * speed);
+            characterController.Move(relativeMovement.normalized * speed * Time.deltaTime);
         }
-    }
 
+        velocity +=  Physics.gravity * Time.deltaTime;
 
-    private void OnMove(InputValue value)
-    {
-        movementVector = value.Get<Vector2>();
-    }
-
-    private void OnSprint(InputValue value)
-    {
-        if (value.Get<float>() > 0)
-        {
-            speed = sprintSpeed;
-        } else
-        {
-            speed = walkingSpeed;
-        }
+        characterController.Move(velocity * Time.deltaTime);
     }
 
     private void OnLook(InputValue value)
