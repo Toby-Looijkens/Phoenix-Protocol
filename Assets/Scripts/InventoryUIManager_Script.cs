@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class KeyItem
+public class InventoryUIManager_Script : MonoBehaviour
 {
-    [SerializeField] 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

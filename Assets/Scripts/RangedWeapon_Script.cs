@@ -1,16 +1,21 @@
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class RangedWeapon_Script : MonoBehaviour
 {
     [Header("Weapon Stats")]
-    [SerializeField] private float magazineSize;
-    [SerializeField] private float healthDamage;
-    [SerializeField] private float staggerDamage;
-    [SerializeField] private float fireRate;
+    [SerializeField] private float MagazineSize;
+    [SerializeField] private float HealthDamage;
+    [SerializeField] private float StaggerDamage;
+    [SerializeField] private float FireRate;
 
     [Header("Components")]
+    [SerializeField] Transform Muzzle;
+    [SerializeField] GameObject cam;
+    [SerializeField] LayerMask mask;
+    [SerializeField] GameObject projectilePrefab;
 
     // Weapon Stats
     private float currentAmmo;
@@ -18,34 +23,48 @@ public class RangedWeapon_Script : MonoBehaviour
     private bool isReloading = false;
     private bool canFire = true;
 
+    // Cooldowns
+    private float fireCooldown = 0;
+
     // Input Registration
     private InputAction shootAction;
     private InputAction reloadAction;
 
-    GameObject cam;
-
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        currentAmmo = magazineSize;
+        currentAmmo = MagazineSize;
         shootAction = InputSystem.actions.FindAction("Shoot");
         reloadAction = InputSystem.actions.FindAction("Reload");
-        cam = FindAnyObjectByType(typeof(CinemachineCamera)) as GameObject;
     }
 
     void Update()
     {
-        if (reloadAction.ReadValue<float>() > 0 && !isReloading) Reload();     
+        if (reloadAction.ReadValue<float>() > 0 && !isReloading) Reload();
+        Shoot();
     }
 
     private void Shoot()
     {
-        if (!canFire) return;
-        Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hitInfo, 1000);
-
-        if (hitInfo.collider.CompareTag("Enemy"))
+        if (fireCooldown > 0)
         {
-            
+            fireCooldown -= Time.deltaTime;
+            return;
+        }
+
+        fireCooldown = 60 / FireRate;
+
+        if (shootAction.ReadValue<float>() == 0) return;
+        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hitInfo, 1000, mask))
+        {
+            GameObject projectile = Instantiate(projectilePrefab, Muzzle.position, Quaternion.Euler(0, 0, 0));
+            projectile.GetComponent<Projectile_Script>().target = hitInfo.point;
+            projectile.GetComponent<Projectile_Script>().speed = 100f;
+
+            if (hitInfo.collider.CompareTag("Enemy"))
+            {
+
+            }
         }
     }
 
@@ -58,10 +77,10 @@ public class RangedWeapon_Script : MonoBehaviour
 
     public void OnReloadFinish()
     {
-        if (reserveAmmo >= magazineSize)
+        if (reserveAmmo >= MagazineSize)
         {
-            currentAmmo = magazineSize;
-            reserveAmmo -= magazineSize;
+            currentAmmo = MagazineSize;
+            reserveAmmo -= MagazineSize;
         } 
         else
         {

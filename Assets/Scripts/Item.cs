@@ -9,6 +9,7 @@ public interface IItem
     public string Type { get; set; }
 
     public void Use();
+    public void Combine();
     public void Examine();
     public void Discard();
 }
