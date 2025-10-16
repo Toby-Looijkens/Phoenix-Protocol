@@ -8,7 +8,9 @@ public class InventoryManager : MonoBehaviour
 {
     public GameObject powercell;
 
-    private IItem[,] inventory;
+    public IItem[,] inventory;
+
+    public IItem[] keyItems;
 
     [SerializeField] private InventoryUIManager_Script inventoryUIManager;
 
