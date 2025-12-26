@@ -44,7 +44,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         speed = walkingSpeed;
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
         rigidBody = GetComponent<Rigidbody>();
 
         moveAction = InputSystem.actions.FindAction("Move");

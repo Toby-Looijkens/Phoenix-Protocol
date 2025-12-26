@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Door_Script : MonoBehaviour, IDoor
 {
-    [SerializeField] Animation Animation;
+    [SerializeField] Animator Animator;
     [SerializeField] Collider DoorTrigger;
     [SerializeField] private IItem requiredKey;
 
@@ -17,12 +17,17 @@ public class Door_Script : MonoBehaviour, IDoor
 
     public void Open()
     {
-        Animation.Play();
+        Animator.SetTrigger("OpenDoor");
     }
 
     public void Close()
     {
-        Animation.Play();
+        Animator.SetTrigger("CloseDoor");
+    }
+
+    public float GetCurrentAnimationState()
+    {
+        return Animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
     }
 
     private void OnTriggerEnter(Collider collision)

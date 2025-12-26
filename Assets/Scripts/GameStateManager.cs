@@ -1,5 +1,12 @@
+using NUnit.Framework;
 using TMPro;
 using UnityEngine;
+
+public enum Status {
+    Locked,
+    Ongoing,
+    Completed
+}
 
 public class GameStateManager : MonoBehaviour
 {
@@ -24,4 +31,6 @@ public class GameStateManager : MonoBehaviour
         gameState++;
         hud.text = tasks[gameState];
     }
+
+
 }
